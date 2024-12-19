@@ -3,6 +3,8 @@ import userModel from "./user.model";
 import { golobalResponseSend } from "../../utilis/golobal.respons.send";
 import { golobalResponseError } from "../../utilis/golobalError";
 import { stackError } from "../../utilis/stackError";
+import jwt from "jsonwebtoken"
+import config from "../../config";
 // import { hashPassword } from "../../utilis/hassingPassword";
 
 const userCreat:RequestHandler = async(req,res)=>{
@@ -38,7 +40,7 @@ const loginUser: RequestHandler = async (req, res) => {
         }
 
         // Find the user by email
-        const user = await UserModel.findOne({ email });
+        const user = await userModel.findOne({ email });
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -49,21 +51,22 @@ const loginUser: RequestHandler = async (req, res) => {
         }
 
         // Verify password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid credentials",
-                statusCode: 401,
-                error: { details: "Password mismatch" },
-            });
-        }
+        // const isPasswordValid = await bcrypt.compare(password, user.password);
+        // if (!isPasswordValid) {
+        //     return res.status(401).json({
+        //         success: false,
+        //         message: "Invalid credentials",
+        //         statusCode: 401,
+        //         error: { details: "Password mismatch" },
+        //     });
+        // }
 
         // Generate JWT token
+        
         const token = jwt.sign(
-            { id: user._id, email: user.email },
-            process.env.JWT_SECRET as string, // Ensure JWT_SECRET is defined in your environment variables
-            { expiresIn: '1h' }
+            {email: user.email,password:user?.password},
+            config.jwt_secret as string, // Ensure JWT_SECRET is defined in your environment variables
+            { expiresIn: '5d' }
         );
 
         // Send success response
@@ -74,15 +77,11 @@ const loginUser: RequestHandler = async (req, res) => {
             data: { token },
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "An error occurred",
-            statusCode: 500,
-            error: error.message,
-            stack: error.stack,
-        });
+        res.status(401).json(
+            golobalResponseError(false,"Invalid credentials",401,error,stackError(error))
+        );
     }
 };
 
 
-export const userModelController = {userCreat}
+export const userModelController = {userCreat,loginUser}

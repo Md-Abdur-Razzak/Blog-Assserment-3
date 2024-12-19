@@ -3,7 +3,7 @@ import { userModelController } from "./user.controls";
 const router = express.Router()
 
 router.post('/auth/register',userModelController?.userCreat);
-// router.get('/products', );
+router.post('/auth/login',userModelController?.loginUser);
 // router.get('/products/:productId', );
 // router.put('/products/:productId', );
 // router.delete('/products/:productId',);
