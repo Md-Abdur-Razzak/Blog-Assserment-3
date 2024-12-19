@@ -24,4 +24,65 @@ const userCreat:RequestHandler = async(req,res)=>{
 
 }
 
+const loginUser: RequestHandler = async (req, res) => {
+    try {
+        const { email, password }: { email: string; password: string } = req.body;
+
+        // Validate request body
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and password are required",
+                statusCode: 400,
+            });
+        }
+
+        // Find the user by email
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid credentials",
+                statusCode: 401,
+                error: { details: "User not found" },
+            });
+        }
+
+        // Verify password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid credentials",
+                statusCode: 401,
+                error: { details: "Password mismatch" },
+            });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { id: user._id, email: user.email },
+            process.env.JWT_SECRET as string, // Ensure JWT_SECRET is defined in your environment variables
+            { expiresIn: '1h' }
+        );
+
+        // Send success response
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            statusCode: 200,
+            data: { token },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "An error occurred",
+            statusCode: 500,
+            error: error.message,
+            stack: error.stack,
+        });
+    }
+};
+
+
 export const userModelController = {userCreat}

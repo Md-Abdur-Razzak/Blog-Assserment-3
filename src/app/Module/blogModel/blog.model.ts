@@ -17,7 +17,7 @@ const blogPostSchema = new Schema<BlogPost>(
       },
       author: {
         type: Schema.Types.ObjectId,
-        ref: 'user',
+        ref: 'users',
         required: [true, 'Author is required.'],
       },
       isPublished: {
@@ -32,3 +32,4 @@ const blogPostSchema = new Schema<BlogPost>(
   
   // Create the Mongoose model
   const BlogPostModel = model<BlogPost>('BlogPost', blogPostSchema);
+  export default BlogPostModel

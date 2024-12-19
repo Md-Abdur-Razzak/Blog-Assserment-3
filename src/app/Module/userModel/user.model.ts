@@ -24,7 +24,8 @@ const UserSchema: Schema<Tuser> = new Schema(
       },
       isBlocked: { 
         type: Boolean, 
-        default: false 
+        default: false ,
+        
       },
     },
     {
