@@ -1,7 +1,8 @@
 import express from "express"
-const router = express.Router
+import { userModelController } from "./user.controls";
+const router = express.Router()
 
-router.post('/api/user',);
+router.post('/user',userModelController?.userCreat);
 // router.get('/products', );
 // router.get('/products/:productId', );
 // router.put('/products/:productId', );

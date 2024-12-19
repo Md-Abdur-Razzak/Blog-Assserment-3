@@ -6,6 +6,7 @@ const UserSchema: Schema<Tuser> = new Schema(
       name: { 
         type: String, 
         required: [true, "Name is required."] // Custom error message
+        
       },
       email: { 
         type: String, 
