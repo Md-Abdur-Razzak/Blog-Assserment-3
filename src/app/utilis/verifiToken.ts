@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 import config from "../config";
 import { NextFunction,Response } from "express";
-
+export let user = {}
 export const verifyToken = (req:any, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -18,8 +18,8 @@ export const verifyToken = (req:any, res: Response, next: NextFunction) => {
             password: string;
             email: string;
         };
-        req.user = decoded;
-        console.log(decoded);
+       user = decoded;
+      
         
         next();
     } catch (error) {

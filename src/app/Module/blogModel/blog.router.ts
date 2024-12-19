@@ -5,9 +5,7 @@ const blogRouter = express.Router()
 
  
 blogRouter.post('/blogs',verifyToken,blogModelController?.blogCreat);
-// router.get('/products', );
-blogRouter.put('/blogs/:id',verifyToken,blogModelController?.updateBlog);
-// router.put('/products/:productId', );
-// router.delete('/products/:productId',);
+blogRouter.patch('/blogs/:id',verifyToken,blogModelController?.updateBlog);
+blogRouter.delete('/blogs/:id', blogModelController?.deletBlog);
 
 export default blogRouter

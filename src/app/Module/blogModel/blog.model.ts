@@ -18,8 +18,7 @@ const blogPostSchema = new Schema<BlogPost>(
       author: {
         type: Schema.Types.ObjectId,
         ref: 'users',
-        required: [true, 'Author is required.'],
-        default:"676446dc2b9521e31651e03f"
+        default:""
       },
       isPublished: {
         type: Boolean,
