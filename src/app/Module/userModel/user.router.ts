@@ -1,7 +1,7 @@
 import express from "express"
 const router = express.Router
 
-router.post('/products',);
+router.post('/api/user',);
 // router.get('/products', );
 // router.get('/products/:productId', );
 // router.put('/products/:productId', );
