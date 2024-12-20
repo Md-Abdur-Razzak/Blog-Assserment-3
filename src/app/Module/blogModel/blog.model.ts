@@ -18,7 +18,7 @@ const blogPostSchema = new Schema<BlogPost>(
       author: {
         type: Schema.Types.ObjectId,
         ref: 'users',
-        default:""
+        default:null
       },
       isPublished: {
         type: Boolean,

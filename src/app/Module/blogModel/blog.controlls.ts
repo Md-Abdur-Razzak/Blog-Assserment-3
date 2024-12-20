@@ -6,6 +6,7 @@ import BlogPostModel from "./blog.model";
 import { BlogPost } from "./blog.interface";
 import { user } from "../../utilis/verifiToken";
 import userModel from "../userModel/user.model";
+import mongoose from "mongoose";
 
 
 const blogCreat:RequestHandler = async(req,res)=>{
@@ -84,4 +85,76 @@ const deletBlog:RequestHandler = async(req,res)=>{
 
 }
 
-export const blogModelController = {blogCreat,updateBlog,deletBlog}
+
+ const serchingBlog: RequestHandler = async (req, res) => {
+    try {
+        const { search, sortBy = "createdAt", sortOrder = "desc", filter } = req.query;
+ 
+        
+        // Construct the query object
+        const query: any = {};
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: "i" } }, // Search in title
+                { content: { $regex: search, $options: "i" } }, // Search in content
+            ];
+        }
+        let authorFilter: string | undefined;
+        if (typeof filter === 'string') {
+          authorFilter = filter.trim(); // Ensure it's a string and remove extra spaces
+          if (!mongoose.Types.ObjectId.isValid(authorFilter)) {
+            return res.status(400).json({
+              success: false,
+              message: 'Invalid author ID provided',
+              statusCode: 400,
+            });
+          }
+        }
+    
+       // Sort object
+        let sort: any = {};
+        if (sortBy || sortOrder) {
+            sort[sortBy as string] = sortOrder.toString() === "asc" ? 1 : -1;
+            console.log("this is a sort data : ",sort,sortOrder);
+        }
+            console.log(query);
+            
+
+        // Fetch blogs
+        const blogs = await BlogPostModel.find(query).sort(sort)
+        const usermodal = await userModel.find()
+        const enhancedPosts = blogs.map(post => {
+            const author = usermodal.find(user =>String(user._id) === String(post.author));
+            return {
+                _id: post._id,
+                title: post.title,
+                content: post.content,
+                author: author ? {
+                    _id: author._id,
+                    name: author.name,
+                    email: author.email
+                } : null,
+               
+             
+            };
+        });
+        
+            
+        res.status(200).json({
+            success: true,
+            message: "Blogs fetched successfully",
+            statusCode: 200,
+            data: enhancedPosts,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch blogs",
+            statusCode: 500,
+            error
+            
+        });
+    }
+};
+
+export const blogModelController = {blogCreat,updateBlog,deletBlog,serchingBlog}
