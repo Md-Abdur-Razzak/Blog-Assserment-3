@@ -14,9 +14,9 @@ const userCreat:RequestHandler = async(req,res)=>{
         let reciveUser = req.body
         // const hashedPassword = await hashPassword(reciveUser?.password);
         //  reciveUser.password = hashedPassword
-        let creatNewUser =await userModel.create(reciveUser)
+        let {_id,name ,email,} =await userModel.create(reciveUser)
         res.status(201).json(
-        golobalResponseSend(true,"user creat a sucessfully",201,creatNewUser)
+        golobalResponseSend(true,"User registered successfully",201,{_id,name,email})
        )
     } catch (error) {
      res.status(400).json(
@@ -42,14 +42,14 @@ const loginUser: RequestHandler = async (req, res) => {
         }
 
         // Find the user by email
-        const user = await userModel.findOne({ email });
+        const user = await userModel.findOne({ email,password });
        
         if (!user) {
             return res.status(401).json({
                 success: false,
                 message: "Invalid credentials",
                 statusCode: 401,
-                error: { details: "User not found" },
+                error: "User not found",
             });
         }
         if(user?.isBlocked == true){
@@ -76,7 +76,7 @@ const loginUser: RequestHandler = async (req, res) => {
         const token = jwt.sign(
             {email: user.email,password:user?.password},
             config.jwt_secret as string, // Ensure JWT_SECRET is defined in your environment variables
-            { expiresIn: '5d' }
+            { expiresIn: '20d' }
         );
 
         // Send success response
@@ -128,7 +128,7 @@ console.log(userId);
             success: true,
             message: "User blocked successfully",
             statusCode: 200,
-            data:user
+         
         });
     } catch (error) {
         // Handle server errors
@@ -161,11 +161,11 @@ const deletBlog:RequestHandler = async(req,res)=>{
             });
         }
       await BlogPostModel.deleteOne({_id:id})
-        res.status(201).json(
+        res.status(200).json(
       {
         success: true,
         message: "Blog deleted successfully",
-        statusCode: 400,
+        statusCode: 200,
       }
        )
     } catch (error) {

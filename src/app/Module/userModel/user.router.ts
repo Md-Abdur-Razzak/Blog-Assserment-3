@@ -9,10 +9,5 @@ router.post('/auth/login',userModelController?.loginUser);
 router.patch('/admin/users/:userId/block',verifyToken,isAdmin, userModelController?.blockuserByAdmint );
 router.delete('/admin/blogs/:id',verifyToken,isAdmin,userModelController?.deletBlog);
 
-// router.post('/products',);
-// router.get('/products', );
-// router.get('/products/:productId', );
-// router.put('/products/:productId', );
-// router.delete('/products/:productId',);
 
 export default router;

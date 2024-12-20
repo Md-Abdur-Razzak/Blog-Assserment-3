@@ -7,6 +7,7 @@ import { BlogPost } from "./blog.interface";
 import { user } from "../../utilis/verifiToken";
 import userModel from "../userModel/user.model";
 import mongoose from "mongoose";
+import { hashPassword } from "../../utilis/hassingPassword";
 
 
 const blogCreat:RequestHandler = async(req,res)=>{
@@ -17,9 +18,15 @@ const blogCreat:RequestHandler = async(req,res)=>{
         if (findByIddata) {
             blogData.author = findByIddata?._id
         }
-        let creatblogData =await BlogPostModel.create(blogData)
+        let {_id,title,content,author} =await (await BlogPostModel.create(blogData))
+        let authorData =await (await userModel.findById(author))
+         const hashedPassword = await hashPassword(authorData?.password);
+         if (authorData ) {
+            authorData.password = hashedPassword
+         } 
+        
         res.status(201).json(
-        golobalResponseSend(true,"Blog created successfully",201,creatblogData)
+        golobalResponseSend(true,"Blog created successfully",201,{_id,title,content,author:authorData})
        )
     } catch (error) {
      res.status(400).json(
@@ -43,8 +50,16 @@ const updateBlog:RequestHandler = async(req,res)=>{
             });
         }
         let updateblogData =await BlogPostModel.findByIdAndUpdate(id,{content,title},{ new: true })
-        res.status(201).json(
-        golobalResponseSend(true,"Blog updated successfully",201,updateblogData)
+       
+        const { _id, title: updatedTitle = '', content: updatedContent = '', author = '' } = updateblogData || {};
+
+        let authorData =await (await userModel.findById(author))
+        const hashedPassword = await hashPassword(authorData?.password);
+        if (authorData ) {
+            authorData.password = hashedPassword
+        } 
+        res.status(200).json(
+        golobalResponseSend(true,"Blog updated successfully",200,{_id,title,content,author:authorData})
        )
     } catch (error) {
      res.status(400).json(
