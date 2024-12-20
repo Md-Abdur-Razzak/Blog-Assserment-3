@@ -18,9 +18,8 @@ This project provides a robust and flexible RESTful API for managing blogs. User
 - User-friendly error handling for invalid inputs.
 
 ## Technologies Used
-- **Backend**: Node.js, Express.js
+- **Backend**: Node.js, Express.js with Typescript
 - **Database**: MongoDB with Mongoose
-- **TypeCard** : Typescript
 - **Environment Management**: dotenv
 - **API Documentation**: Postman 
 
@@ -36,6 +35,6 @@ Make sure you have the following installed:
 - TypeScript
 - dotenv
 - esglint
-- cript hassing password
+- bycript hassing password
 - jwt
 - Git
