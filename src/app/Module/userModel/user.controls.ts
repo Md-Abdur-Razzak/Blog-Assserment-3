@@ -5,6 +5,8 @@ import { golobalResponseError } from "../../utilis/golobalError";
 import { stackError } from "../../utilis/stackError";
 import jwt from "jsonwebtoken"
 import config from "../../config";
+import mongoose from "mongoose";
+import BlogPostModel from "../blogModel/blog.model";
 // import { hashPassword } from "../../utilis/hassingPassword";
 
 const userCreat:RequestHandler = async(req,res)=>{
@@ -41,6 +43,7 @@ const loginUser: RequestHandler = async (req, res) => {
 
         // Find the user by email
         const user = await userModel.findOne({ email });
+       
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -49,7 +52,14 @@ const loginUser: RequestHandler = async (req, res) => {
                 error: { details: "User not found" },
             });
         }
-
+        if(user?.isBlocked == true){
+            return res.status(401).json({
+                success: false,
+                message: "user is block",
+                statusCode: 401,
+                
+            });
+        }
         // Verify password
         // const isPasswordValid = await bcrypt.compare(password, user.password);
         // if (!isPasswordValid) {
@@ -83,5 +93,89 @@ const loginUser: RequestHandler = async (req, res) => {
     }
 };
 
+const blockuserByAdmint:RequestHandler = async (req, res) => {
+    const { userId } = req.params;
+console.log(userId);
 
-export const userModelController = {userCreat,loginUser}
+    // Validate userId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid user ID format",
+            statusCode: 400,
+        });
+    }
+
+    try {
+        // Find the user and update isBlocked to true
+        const user = await userModel.findByIdAndUpdate(
+            userId,
+            { isBlocked: true },
+            { new: true } // Return the updated document
+        );
+
+        // If user not found
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+                statusCode: 404,
+            });
+        }
+
+        // Success response
+        return res.status(200).json({
+            success: true,
+            message: "User blocked successfully",
+            statusCode: 200,
+            data:user
+        });
+    } catch (error) {
+        // Handle server errors
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while blocking the user",
+            error,
+            statusCode: 500,
+        });
+    }
+};
+
+
+const deletBlog:RequestHandler = async(req,res)=>{
+    try {
+        const id = req.params?.id
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid blog ID format",
+                statusCode: 400,
+            });
+        }
+        let findData =await BlogPostModel.findById(id)
+        if (!findData) {
+            return res.status(400).json({
+                success: false,
+                message: "please give me vaild id",
+                statusCode: 400,
+            });
+        }
+      await BlogPostModel.deleteOne({_id:id})
+        res.status(201).json(
+      {
+        success: true,
+        message: "Blog deleted successfully",
+        statusCode: 400,
+      }
+       )
+    } catch (error) {
+     res.status(400).json(
+        golobalResponseError(false,"Somthing wrong !",400,error,stackError(error))
+     )
+       
+    }
+  
+
+}
+
+export const userModelController = {userCreat,loginUser,blockuserByAdmint,deletBlog}

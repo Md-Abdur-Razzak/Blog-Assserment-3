@@ -59,7 +59,15 @@ const updateBlog:RequestHandler = async(req,res)=>{
 const deletBlog:RequestHandler = async(req,res)=>{
     try {
         const id = req.params?.id
-        let findData =await BlogPostModel.findById(id)
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid blog ID format",
+                statusCode: 400,
+            });
+        }
+        
+        let findData =await BlogPostModel.findById({_id:id})
         if (!findData) {
             return res.status(400).json({
                 success: false,
